@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Permutador Aleatorio - J. Jaramillo</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        html, body {
+            background: #fff600;
+            min-height: 100vh;
+            font-family: 'IBM Plex Mono', monospace, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .layout {
+            display: flex;
+            min-height: 100vh;
+            width: 100vw;
+            justify-content: center;
+        }
+        .sidebar {
+            background: #f44336; /* Rojo brillante */
+            min-width: 170px;
+            max-width: 190px;
+            width: 15vw;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            border-right: 4px solid #111;
+            box-shadow: 2px 0 0 #000a;
+            align-items: stretch;
+            justify-content: flex-start;
+        }
+        .sidebar button {
+            font-family: 'IBM Plex Mono', monospace, Arial, sans-serif;
+            border: none;
+            border-bottom: 2px solid #fff;
+            font-weight: 700;
+            font-size: 1em;
+            padding: 19px 0;
+            color: #fff;
+            cursor: pointer;
+            width: 100%;
+            background: transparent;
+            transition: background 0.08s, color 0.13s;
+            outline: none;
+            letter-spacing: 0.03em;
+        }
+        .sidebar .btn-cromatica  { background: #f44336; }
+        .sidebar .btn-triadas    { background: #00c853; }
+        .sidebar .btn-cuatriadas { background: #ff9800; color: #111;}
+        .sidebar .btn-escalas    { background: #2196f3; }
+        .sidebar .btn-bebop      { background: #111; }
+        .sidebar button:hover {
+            background: #fff600;
+            color: #111;
+        }
+        .main {
+            background: #fff;
+            min-width: 680px;
+            max-width: 1120px;
+            width: 88vw;
+            padding: 36px 80px 28px 80px;
+            margin: 40px 48px;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            border: 4px solid #222;
+            box-shadow: 7px 8px 0 #111, 0 2px 22px 0 #2222;
+        }
+        .titulo {
+            text-align: left;
+            font-size: 2.8em;
+            font-weight: 900;
+            color: #111;
+            margin-bottom: 8px;
+            letter-spacing: -2px;
+            line-height: 1.04;
+        }
+        .mensaje-copia {
+            background: #ffeb3b;
+            color: #111;
+            padding: 7px 12px;
+            border: 2px solid #111;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.97em;
+            margin-bottom: 9px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.18s;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+        .mensaje-copia.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        label {
+            color: #222;
+            font-weight: 700;
+            font-size: 0.95em;
+            margin-top: 2px;
+            margin-bottom: 1px;
+            display: block;
+        }
+        .entrada-row {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 9px;
+            margin-top: 3px;
+        }
+        textarea {
+            width: 100%;
+            min-height: 48px;
+            max-height: 110px;
+            padding: 7px;
+            border: 2px solid #111;
+            font-family: inherit;
+            font-size: 0.97em;
+            margin-bottom: 8px;
+            background: #fff;
+            color: #111;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+        textarea::placeholder {
+            color: #bdbdbd;
+        }
+        input[type="number"] {
+            width: 49px;
+            padding: 3px 3px 3px 6px;
+            border: 2px solid #111;
+            font-family: inherit;
+            font-size: 0.97em;
+            background: #fafafa;
+            color: #222;
+        }
+        button#generarBtn {
+            background: #f44336;
+            color: #fff;
+            font-family: 'IBM Plex Mono', monospace;
+            font-weight: 700;
+            border: 2px solid #222;
+            font-size: 1.01em;
+            padding: 7px 20px;
+            cursor: pointer;
+            margin-left: auto;
+            margin-top: 10px;
+            margin-bottom: 0;
+            transition: background 0.16s, color 0.13s;
+            box-shadow: 2px 2px 0 #111a;
+        }
+        button#generarBtn:hover {
+            background: #00c853;
+            color: #111;
+            border-color: #00c853;
+        }
+        .resultado {
+            margin-top: 20px;
+            display: grid;
+            gap: 10px;
+            grid-template-columns: 1fr 1fr;
+        }
+        .perm {
+            border: 3px solid #111;
+            background: #fff;
+            color: #111;
+            padding: 10px 12px;
+            font-size: 1.01em;
+            font-family: 'IBM Plex Mono', monospace;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            margin-bottom: 0;
+            display: flex;
+            align-items: baseline;
+        }
+        .perm.bg0 { background: #fff600; }
+        .perm.bg1 { background: #00e676; }
+        .perm.bg2 { background: #ffd600; }
+        .perm.bg3 { background: #f44336; color: #fff;}
+        .perm.bg4 { background: #2196f3; color: #fff;}
+        .perm.bg5 { background: #ff9800; }
+        .perm-num {
+            margin-right: 16px;
+            min-width: 32px;
+            color: #111;
+            font-weight: 700;
+            font-size: 1.08em;
+            border-right: 2px solid #111;
+            padding-right: 10px;
+        }
+        .creditos {
+            margin-top: 28px;
+            font-size: 0.94em;
+            color: #111;
+            text-align: right;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+        @media (max-width: 900px) {
+            .layout { flex-direction: column; align-items: stretch; min-width:0;}
+            .sidebar {
+                flex-direction: row;
+                min-width: 0;
+                max-width: none;
+                border-right: none;
+                border-bottom: 4px solid #111;
+                width: 100vw;
+            }
+            .sidebar button { font-size: 0.92em; padding: 10px 0;}
+            .main {
+                margin: 10px 2vw;
+                padding: 18px 5vw 10px 5vw;
+                max-width: none;
+                min-width: 0;
+            }
+            .resultado { grid-template-columns: 1fr; }
+            .titulo { font-size: 2em; }
+        }
+        @media (max-width: 600px) {
+            .main { padding: 7px 2vw 2px 2vw; }
+            .perm { font-size: 0.95em;}
+            .perm-num { min-width: 22px; padding-right: 4px;}
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <button class="btn-cromatica"  data-serie="cromatica">Escala cromática</button>
+            <button class="btn-triadas"    data-serie="triadas">Triadas</button>
+            <button class="btn-cuatriadas" data-serie="cuatriadas">Cuatriadas</button>
+            <button class="btn-escalas"    data-serie="escalas">Escalas</button>
+            <button class="btn-bebop"      data-serie="bebop">Bebop</button>
+        </aside>
+        <main class="main">
+            <div class="titulo">Permutador Aleatorio<br>
+                <span style="color:#00c853;font-size:0.53em;font-weight:900;">J. Jaramillo</span>
+            </div>
+            <div class="mensaje-copia" id="mensajeCopia"></div>
+            <label for="items">Ítems (separados por coma o por línea):</label>
+            <textarea id="items" autofocus></textarea>
+
+            <div class="entrada-row">
+                <label for="numPerm" style="margin:0;">Permutaciones:</label>
+                <input type="number" id="numPerm" value="3" min="1" max="100">
+                <label for="numItems" style="margin:0;">Ítems por permutación:</label>
+                <input type="number" id="numItems" value="4" min="2" max="100">
+                <button id="generarBtn">Generar</button>
+            </div>
+            <div class="resultado" id="resultado"></div>
+            <div class="creditos">App por J. Jaramillo <span style="color:#f44336;">2025</span></div>
+        </main>
+    </div>
+    <script>
+        // Series prediseñadas
+        const series = {
+            cromatica: [
+                "C", "C#(Db)", "D", "D#(Eb)", "E", "F", "F#(Gb)", "G", "G#(Ab)", "A", "A#(Bb)", "B"
+            ],
+            triadas: [
+                "X", "X-", "X+", "Xº", "Xsus4", "Xsus2", "X(b5)"
+            ],
+            cuatriadas: [
+                "X∆", "X7", "Xm7", "Xm∆", "X+∆", "X+7", "Xm7(b5)", "Xº7", "Xº∆", "X∆sus4", "X7sus4", "X∆sus2", "X7sus2", "X(b5)∆", "X(b5)7"
+            ],
+            escalas: [
+                "Jónico", "Dórico", "Frigio", "Lidio", "Mixolidio", "Eólico", "Locrio",
+                "Jónicob6", "Locrio#2#6", "Mixolidio b2 #2 no 4", "Dórico #4 #7", "Mixolidio b2",
+                "Lidio #2 #5", "Locrio b7", "Eólico #7", "Locrio #6", "Jónico aumentado", "Dórico #4",
+                "Mixolidio b2 b6", "Lidio #2", "Locrio b4 b7", "Dórico #7", "Dórico b2",
+                "Lidio aumentado", "Lidio dominante", "Mixolidio b6", "Locrio #2", "Alterado",
+                "Pentatónica mayor", "Pentatónica dominante", "Escala blues",
+                "Por tonos (Whole-tone)", "Disminuida H–W", "Disminuida W–H"
+            ],
+            bebop: [
+                "Escala", "Escala con octavación", "Arpegio", "Arpegio con octavación", "Compresión", "Targeting", "Cromatismo", "Interrupción", 
+            ]
+        };
+
+        // Sidebar buttons para copiar y pegar automáticamente
+        document.querySelectorAll('.sidebar button').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const key = btn.getAttribute('data-serie');
+                if (!series[key]) return;
+                const lista = series[key].join(', ');
+                // Copia al portapapeles
+                navigator.clipboard.writeText(lista);
+                // Pega en el área de texto
+                const area = document.getElementById('items');
+                area.value = lista;
+                area.focus();
+                mostrarMensajeCopia('¡Lista insertada! Puedes editar o permutar.');
+            });
+        });
+
+        // Mensaje flotante
+        function mostrarMensajeCopia(texto) {
+            const mensaje = document.getElementById('mensajeCopia');
+            mensaje.innerHTML = texto;
+            mensaje.classList.add('visible');
+            setTimeout(() => {
+                mensaje.classList.remove('visible');
+            }, 1400);
+        }
+
+        // Botón Generar
+        document.getElementById('generarBtn').addEventListener('click', function() {
+            const texto = document.getElementById('items').value.trim();
+            let items = texto
+                .replace(/,/g, '\n')
+                .split('\n')
+                .map(s => s.trim())
+                .filter(s => s.length > 0);
+
+            const numPerm = parseInt(document.getElementById('numPerm').value) || 1;
+            const numItems = parseInt(document.getElementById('numItems').value) || 2;
+
+            let resultado = '';
+
+            if (items.length < 2) {
+                resultado = "<span style='color:#f44336'>Por favor, ingresa al menos dos ítems.</span>";
+            } else if (numItems > items.length) {
+                resultado = "<span style='color:#ff9800'>No puedes pedir más ítems por permutación que ítems en la lista.</span>";
+            } else if (numItems < 2) {
+                resultado = "<span style='color:#f44336'>Debes seleccionar al menos 2 ítems por permutación.</span>";
+            } else {
+                let permutaciones = new Set();
+                let maxComb = combinatorio(items.length, numItems) * factorial(numItems);
+                let limite = Math.min(numPerm, maxComb);
+                let intentos = 0;
+                while (permutaciones.size < limite && intentos < limite * 10) {
+                    let seleccion = obtenerSubconjuntoAleatorio(items, numItems);
+                    // Permuta el subconjunto seleccionado
+                    for (let i = seleccion.length - 1; i > 0; i--) {
+                        let j = Math.floor(Math.random() * (i + 1));
+                        [seleccion[i], seleccion[j]] = [seleccion[j], seleccion[i]];
+                    }
+                    permutaciones.add(seleccion.join(', '));
+                    intentos++;
+                }
+                let i = 1;
+                resultado = Array.from(permutaciones).map((p, idx) =>
+                    `<div class="perm bg${idx%6}"><span class="perm-num">${i++}.</span> ${p}</div>`
+                ).join('');
+                if (permutaciones.size < numPerm) {
+                    resultado += `<div style="color:#ff9800; font-size:0.97em; margin-top:7px;">
+                        Sólo existen ${permutaciones.size} permutaciones posibles con ${items.length} ítems y tamaño ${numItems}.
+                    </div>`;
+                }
+            }
+            document.getElementById('resultado').innerHTML = resultado;
+        });
+
+        // Elegir un subconjunto aleatorio de N items únicos
+        function obtenerSubconjuntoAleatorio(arr, n) {
+            let copia = [...arr];
+            let resultado = [];
+            for (let i = 0; i < n; i++) {
+                let idx = Math.floor(Math.random() * copia.length);
+                resultado.push(copia[idx]);
+                copia.splice(idx, 1);
+            }
+            return resultado;
+        }
+        function factorial(n) {
+            return n <= 1 ? 1 : n * factorial(n - 1);
+        }
+        function combinatorio(n, k) {
+            if (k > n) return 0;
+            return factorial(n) / (factorial(k) * factorial(n - k));
+        }
+    </script>
+</body>
+</html>
