@@ -162,6 +162,21 @@
             gap: 10px;
             grid-template-columns: 1fr 1fr;
         }
+        #historial {
+            margin-top: 18px;
+            margin-bottom: 0;
+        }
+        .historial-titulo {
+            font-size: 1.16em;
+            font-weight: 700;
+            background: #ffe066;
+            color: #111;
+            padding: 6px 15px 5px 9px;
+            border: 2px solid #111;
+            margin-bottom: 8px;
+            margin-right: 24px;
+            display: inline-block;
+        }
         .perm {
             border: 3px solid #111;
             background: #fff;
@@ -249,7 +264,8 @@
                 <button id="generarBtn">Generar</button>
             </div>
             <div class="resultado" id="resultado"></div>
-            <div class="creditos">App por J. Jaramillo <span style="color:#f44336;">2025</span></div>
+            <div id="historial"></div>
+            <div class="creditos">App por J. Jaramillo <span style="color:#f44336;">2024</span></div>
         </main>
     </div>
     <script>
@@ -274,7 +290,7 @@
                 "Por tonos (Whole-tone)", "Disminuida H–W", "Disminuida W–H"
             ],
             bebop: [
-                "Escala", "Escala con octavación", "Arpegio", "Arpegio con octavación", "Compresión", "Targeting", "Cromatismo", "Interrupción", 
+                "Escala", "Arpegio", "Compresión", "Targeting", "Cromatismo", "Interrupción", "Octavación"
             ]
         };
 
@@ -304,7 +320,9 @@
             }, 1400);
         }
 
-        // Botón Generar
+        // Guardar la última lista generada
+        let ultimaListaHTML = "";
+
         document.getElementById('generarBtn').addEventListener('click', function() {
             const texto = document.getElementById('items').value.trim();
             let items = texto
@@ -331,7 +349,6 @@
                 let intentos = 0;
                 while (permutaciones.size < limite && intentos < limite * 10) {
                     let seleccion = obtenerSubconjuntoAleatorio(items, numItems);
-                    // Permuta el subconjunto seleccionado
                     for (let i = seleccion.length - 1; i > 0; i--) {
                         let j = Math.floor(Math.random() * (i + 1));
                         [seleccion[i], seleccion[j]] = [seleccion[j], seleccion[i]];
@@ -349,7 +366,16 @@
                     </div>`;
                 }
             }
+
+            // Guarda la lista anterior antes de reemplazarla, sólo si hay resultado real
+            if (document.getElementById('resultado').innerHTML.trim() && !resultado.includes('Por favor')) {
+                ultimaListaHTML = `<div>
+                    <span class="historial-titulo">Lista anterior:</span>
+                    <div>${document.getElementById('resultado').innerHTML}</div>
+                </div>`;
+            }
             document.getElementById('resultado').innerHTML = resultado;
+            document.getElementById('historial').innerHTML = ultimaListaHTML;
         });
 
         // Elegir un subconjunto aleatorio de N items únicos
